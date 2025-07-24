@@ -20,7 +20,8 @@ First, download the official manifest, then modify it to include the OCI annotat
     ```
 
 2.  Open the downloaded `contour-oke.yaml` file in a text editor. Find the `Service` resource named `envoy` and add the `annotations` block to its metadata. The final resource should look like this:
-
+    Note: For this example I removed the 443 port.
+    
     ```yaml
     # Find this Service definition in your contour-oke.yaml file
     apiVersion: v1
@@ -48,9 +49,8 @@ First, download the official manifest, then modify it to include the OCI annotat
         targetPort: 8080
       type: LoadBalancer
 
-  For this example I removed the 443 port.
-
     ```
+    
 
 ***
 ### ## Step 2: Install Contour and Verify
