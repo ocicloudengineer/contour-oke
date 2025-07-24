@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cas-ms-api-docs-ing
+spec:
+  ingressClassName: contour
+  rules:
+  - http:
+      paths:
+      - path: /blue
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nginx-blue-service
+            port:
+              number: 80
+      - path: /green
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nginx-green-service
+            port:
+              number: 80
