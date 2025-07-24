@@ -85,12 +85,12 @@ Apply the manifest to your cluster and verify that the resources are created cor
 
 3.  Verify the service receives an internal IP address (this may take a minute or two):
     ```bash
-    kubectl get service -n projectcontour contour-envoy
+    kubectl get service -n projectcontour envoy
     ```
     *Expected Result:*
     ```
     NAME            TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-    contour-envoy   LoadBalancer   10.96.123.45    10.0.20.155   80:31283/TCP,443:32135/TCP   2m
+    envoy           LoadBalancer   10.96.123.45    10.0.20.155   80:31283/TCP,443:32135/TCP   2m
     ```
 
 ***
@@ -204,7 +204,7 @@ This manifest creates "blue" and "green" Nginx deployments and services, each wi
 
 This `Ingress` manifest routes traffic to your blue and green services.
 
-1.  Create a file named `blue-green-ingress.yaml`:
+1.  Create a file named `contour-ingress-host-basic.yaml`:
     ```yaml
     apiVersion: networking.k8s.io/v1
     kind: Ingress
@@ -216,14 +216,14 @@ This `Ingress` manifest routes traffic to your blue and green services.
       - http:
           paths:
           - path: /blue
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: nginx-blue-service
                 port:
                   number: 80
           - path: /green
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: nginx-green-service
@@ -232,7 +232,7 @@ This `Ingress` manifest routes traffic to your blue and green services.
     ```
 2.  Apply it:
     ```bash
-    kubectl apply -f blue-green-ingress.yaml
+    kubectl apply -f contour-ingress-host-basic.yaml
     ```
     *Expected Result:*
     ```
@@ -246,24 +246,73 @@ Since the load balancer is internal, you must test from a machine **inside the s
 
 1.  Get the internal IP of your load balancer:
     ```bash
-    kubectl get service -n projectcontour contour-envoy -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+    kubectl get service -n projectcontour envoy -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
     ```
     *Expected Result:*
     ```
     10.0.20.155
     ```
-2.  Test the `/blue` and `/green` paths, using the IP from the previous command.
+2.  Test the `/blue` and `/green` paths, using the IP from the previous command. Find background attribute with blue and green values.
     ```bash
     curl [http://10.0.20.155/blue](http://10.0.20.155/blue)
     ```
     *Expected Result:*
     ```html
-    <html><body style="background-color:#337ab7;color:white;text-align:center;font-family:sans-serif"><h1>Welcome to the BLUE Nginx instance!</h1></body></html>
+    body {
+      margin: 0px;
+      font: 20px 'RobotoRegular', Arial, sans-serif;
+      font-weight: 100;
+      height: 100%;
+      color: #0f1419;
+      background: blue;
+    }
+    div.info {
+      display: table;
+      background: #e8eaec;
+      padding: 20px 20px 20px 20px;
+      border: 1px dashed black;
+      border-radius: 10px;
+      margin: 0px auto auto auto;
+    }
+    div.info p {
+        display: table-row;
+        margin: 5px auto auto auto;
+    }
+    div.info p span {
+        display: table-cell;
+        padding: 10px;
+    }
     ```
     ```bash
     curl [http://10.0.20.155/green](http://10.0.20.155/green)
     ```
     *Expected Result:*
     ```html
-    <html><body style="background-color:#5cb85c;color:white;text-align:center;font-family:sans-serif"><h1>Welcome to the GREEN Nginx instance!</h1></body></html>
+    <html>...
+        body {
+      margin: 0px;
+      font: 20px 'RobotoRegular', Arial, sans-serif;
+      font-weight: 100;
+      height: 100%;
+      color: #0f1419;
+      background: green;
+    }
+    div.info {
+      display: table;
+      background: #e8eaec;
+      padding: 20px 20px 20px 20px;
+      border: 1px dashed black;
+      border-radius: 10px;
+      margin: 0px auto auto auto;
+    }
+    div.info p {
+        display: table-row;
+        margin: 5px auto auto auto;
+    }
+    div.info p span {
+        display: table-cell;
+        padding: 10px;
+    }
+    img {
+        width: 176px; ... </html>
     ```
