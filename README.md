@@ -98,7 +98,7 @@ Apply the manifest to your cluster and verify that the resources are created cor
 
 This resource registers Contour as the default Ingress controller for the cluster.
 
-1.  Create a file named `contour-class.yaml`:
+1.  Create a file named `contour-ingress-class.yaml`:
     ```yaml
     apiVersion: networking.k8s.io/v1
     kind: IngressClass
@@ -111,7 +111,7 @@ This resource registers Contour as the default Ingress controller for the cluste
     ```
 2.  Apply it:
     ```bash
-    kubectl apply -f contour-class.yaml
+    kubectl apply -f contour-ingress-class.yaml
     ```
     *Expected Result:*
     ```
