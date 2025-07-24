@@ -34,26 +34,35 @@ First, download the official manifest, then modify it to include the OCI annotat
         # ⚠️ IMPORTANT: Replace with the OCID of your private subnet
         [oci.oraclecloud.com/subnet1](https://oci.oraclecloud.com/subnet1): "ocid1.subnet.oc1.phx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       # --- END OF ADDED BLOCK ---
-      labels:
-        app: envoy
-      name: envoy
-      namespace: projectcontour
-    spec:
-      externalTrafficPolicy: Local
-      ports:
-      - appProtocol: http
-        name: http
-        port: 80
-        protocol: TCP
-        targetPort: 8080
-      - appProtocol: https
-        name: https
-        port: 443
-        protocol: TCP
-        targetPort: 8443
-      selector:
-        app: envoy
-      type: LoadBalancer
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy
+  name: envoy
+  namespace: projectcontour
+  annotations:
+    # --- ADD THIS ANNOTATIONS BLOCK ---
+    oci.oraclecloud.com/load-balancer-type: "lb"
+    service.beta.kubernetes.io/oci-load-balancer-internal: "true"
+    service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "100"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "400"
+    # Replace with the OCID of your private subnet
+    service.beta.kubernetes.io/oci-load-balancer-subnet1: "ocid1.subnet.oc1.sa-bogota-1.aaaaaaaa3bxqw5xjoxhuixkdj5swfl3ysmre2aiqiwt4bajwxsclts64eveq"
+    # --- END OF ADDED BLOCK ---
+spec:
+  selector:
+    app: envoy
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  type: LoadBalancer
+
+  For this example I removed the 443 port.
+
     ```
 
 ***
